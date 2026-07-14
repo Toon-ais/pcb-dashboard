@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PCB TP – Verified Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+    body {
+      background: #f1f5f9;
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      max-width: 1500px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+      padding: 30px 35px;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 18px;
+    }
+    h1 .main-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    h1 .main-title .camera {
+      font-size: 2.5rem;
+    }
+    h1 small {
+      font-weight: 400;
+      font-size: 1rem;
+      color: #475569;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 30px;
+      margin-top: 25px;
+    }
+    @media (max-width: 1000px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+    .panel {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 24px 20px;
+      border: 1px solid #e2e8f0;
+    }
+    .control-group {
+      margin-bottom: 18px;
+    }
+    .control-group label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+    .control-group select, .control-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: white;
+      transition: 0.15s;
+      font-weight: 500;
+    }
+    .control-group select:focus, .control-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+    .input-row .control-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .divider {
+      border-top: 2px dashed #d1d9e6;
+      margin: 22px 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .badge.pass {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .badge.fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      background: white;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 18px;
+    }
+    .result-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .result-item .label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 0.3px;
+    }
+    .result-item .value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+    .result-item .value.highlight {
+      font-size: 1.5rem;
+      color: #0f172a;
+    }
+    .formula-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      margin: 12px 0 16px 0;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .formula-box .highlight {
+      color: #facc15;
+    }
+    .readings-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px 16px;
+      background: white;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+    }
+    .readings-grid .item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #e2e8f0;
+      padding: 4px 0;
+    }
+    .readings-grid .item .label {
+      font-weight: 600;
+      color: #475569;
+    }
+    .readings-grid .item .val {
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #0f172a;
+    }
+    .table-wrap {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      overflow-x: auto;
+      padding: 4px 0;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    th {
+      background: #f1f5f9;
+      text-align: left;
+      padding: 10px 8px;
+      font-weight: 600;
+      color: #334155;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      font-family: monospace;
+    }
+    tr:hover td {
+      background: #f8fafc;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-dot.pass { background: #22c55e; }
+    .status-dot.fail { background: #ef4444; }
+    .pin-name {
+      font-weight: 600;
+      color: #0f172a;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success {
+      background: #22c55e;
+      color: white;
+    }
+    .btn-success:hover { background: #16a34a; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #cbd5e1;
+    }
+    .btn-outline:hover { background: #f1f5f9; }
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+    .btn-warning:hover { background: #d97706; }
+    .target-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .target-row .control-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .target-row .btn {
+      margin-bottom: 2px;
+    }
+    .file-upload {
+      margin-top: 15px;
+    }
+    .file-upload label {
+      display: block;
+      padding: 12px 16px;
+      background: white;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      color: #475569;
+      transition: 0.15s;
+    }
+    .file-upload label:hover {
+      border-color: #3b82f6;
+      background: #f1f5f9;
+    }
+    .file-upload input[type="file"] {
+      display: none;
+    }
+    .csv-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .csv-actions .btn {
+      flex: 1;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .readings-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>
+    <span class="main-title">
+      <span class="camera">📷</span> PCB TP
+    </span>
+    <small>Target Offset Length ≤ 0.5</small>
+  </h1>
+
+  <div class="grid-2">
+    <!-- LEFT: Controls -->
+    <div class="panel">
+      <div class="control-group">
+        <label>📁 Select Cavity</label>
+        <select id="cavitySelect"></select>
+      </div>
+      <div class="control-group">
+        <label>📌 Select Pin</label>
+        <select id="pinSelect"></select>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="input-row">
+        <div class="control-group">
+          <label>📷 CCD X</label>
+          <input type="number" id="ccdXInput" step="any" value="0">
+        </div>
+        <div class="control-group">
+          <label>📷 CCD Y</label>
+          <input type="number" id="ccdYInput" step="any" value="0">
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="control-group">
+          <label>🌡️ Temp Comp X</label>
+          <input type="number" id="tempXInput" step="any" value="0">
+        </div>
+        <div class="control-group">
+          <label>🌡️ Temp Comp Y</label>
+          <input type="number" id="tempYInput" step="any" value="0">
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-outline" id="clearCcdBtn">Clear CCD</button>
+        <button class="btn btn-outline" id="resetTempBtn">↺ Reset Temp</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- TARGET COMPUTATION -->
+      <div style="background:#f1f5f9; border-radius:16px; padding:16px;">
+        <div style="font-weight:600; font-size:0.9rem; margin-bottom:12px;">🎯 Achieve Target Length</div>
+        <div class="target-row">
+          <div class="control-group">
+            <label>Target Length</label>
+            <input type="number" id="targetLengthInput" step="any" value="0.5">
+          </div>
+          <button class="btn btn-primary" id="computeTargetBtn">Compute</button>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:20px; flex-wrap:wrap; background:white; padding:10px 14px; border-radius:12px;">
+          <span><strong>Required TempX:</strong> <span id="reqTempX">—</span></span>
+          <span><strong>Required TempY:</strong> <span id="reqTempY">—</span></span>
+          <span><strong>Achieved Length:</strong> <span id="achievedLength">—</span></span>
+        </div>
+        <div style="font-size:0.7rem; color:#475569; margin-top:6px;">
+          * Minimal adjustment to reach exactly the target length.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- FILE UPLOAD & DOWNLOAD (optional, keep for CSV) -->
+      <div class="file-upload">
+        <label for="fileInput">📤 Upload CSV with CCD readings</label>
+        <input type="file" id="fileInput" accept=".csv,.tsv,.txt">
+        <div style="font-size:0.7rem; color:#475569; margin-top:4px;">
+          CSV columns: <strong>Cavity, Pin, CCDX, CCDY</strong> (case-insensitive)
+        </div>
+      </div>
+      <div class="csv-actions">
+        <button class="btn btn-primary" id="downloadCsvBtn">💾 Download Full Data</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+        <h2 id="selectedPinTitle" style="margin:0; font-size:1.3rem;">POW_1.1 · L1</h2>
+        <span id="statusBadge" class="badge pass">✅ PASS</span>
+      </div>
+
+      <!-- READINGS -->
+      <div class="readings-grid" id="readingsGrid">
+        <div class="item"><span class="label">CCD X</span><span class="val" id="dispCcdX">—</span></div>
+        <div class="item"><span class="label">CCD Y</span><span class="val" id="dispCcdY">—</span></div>
+        <div class="item"><span class="label">Drawing X</span><span class="val" id="dispDrawX">—</span></div>
+        <div class="item"><span class="label">Drawing Y</span><span class="val" id="dispDrawY">—</span></div>
+        <div class="item"><span class="label">Compensate X</span><span class="val" id="dispCompX">—</span></div>
+        <div class="item"><span class="label">Compensate Y</span><span class="val" id="dispCompY">—</span></div>
+        <div class="item"><span class="label">Temp Comp X</span><span class="val" id="dispTempX">—</span></div>
+        <div class="item"><span class="label">Temp Comp Y</span><span class="val" id="dispTempY">—</span></div>
+      </div>
+
+      <!-- FORMULAS -->
+      <div class="formula-box">
+        <div><span class="highlight">X_offset</span> = CCDX + CompX + TempX – DrawingX</div>
+        <div><span class="highlight">Y_offset</span> = CCDY + CompY + TempY – DrawingY</div>
+        <div><span class="highlight">Offset Length</span> = 2 × √(X_offset² + Y_offset²)</div>
+      </div>
+
+      <div class="result-grid">
+        <div class="result-item"><span class="label">X Offset</span><span class="value" id="xOffsetVal">0.000000</span></div>
+        <div class="result-item"><span class="label">Y Offset</span><span class="value" id="yOffsetVal">0.000000</span></div>
+        <div class="result-item"><span class="label">Offset Length</span><span class="value highlight" id="lengthVal">0.000000</span></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Pin</th>
+            <th>CCD X</th>
+            <th>CCD Y</th>
+            <th>X Off</th>
+            <th>Y Off</th>
+            <th>Length</th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody id="summaryTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ----------------------------------------------------------------
+  // 1. VERIFIED DATA – extracted from "Calculation Page Verified.xlsx"
+  //    Each cavity has its own set of parameters and pre-filled CCD values.
+  // ----------------------------------------------------------------
+  const ALL_DATA = {
+    "L1": {
+      "POW_1.1":  { dX:24.9, cX:0.06278320000000193, dY:37.35, cY:0.29084870000000507, ccdX:24.86, ccdY:37.077 },
+      "POW_1.2":  { dX:24.9, cX:0.05209700000000339, dY:32.35, cY:0.2602266999999969, ccdX:24.83, ccdY:32.121 },
+      "PIN_2":    { dX:23.3, cX:0.065469199999999, dY:26.95, cY:0.199691099999999, ccdX:23.27, ccdY:26.739 },
+      "PIN_3":    { dX:23.3, cX:0.056016700000000696, dY:22.95, cY:0.18983360000000005, ccdX:23.236, ccdY:22.732 },
+      "PIN_4":    { dX:23.3, cX:0.0501749000000018, dY:18.95, cY:0.22212120000000013, ccdX:23.229, ccdY:18.716 },
+      "PIN_5":    { dX:23.3, cX:0.05274689999999893, dY:14.95, cY:0.2646189999999997, ccdX:23.203, ccdY:14.651 },
+      "PIN_6":    { dX:23.3, cX:0.027013600000000082, dY:10.95, cY:0.2289469000000004, ccdX:23.245, ccdY:10.682 },
+      "PIN_7":    { dX:23.3, cX:0.005876600000000565, dY:6.95, cY:0.2506396999999998, ccdX:23.272, ccdY:6.654 },
+      "PIN_8":    { dX:23.3, cX:-0.0007598999999984812, dY:2.95, cY:0.2446195000000002, ccdX:23.302, ccdY:2.654 },
+      "PIN_9":    { dX:23.3, cX:0.019280200000000747, dY:-1.05, cY:0.22433670000000006, ccdX:23.268, ccdY:-1.324 },
+      "PIN_10":   { dX:23.3, cX:0.00802060000000182, dY:-5.05, cY:0.21487709999999982, ccdX:23.307, ccdY:-5.311 },
+      "PIN_11":   { dX:23.3, cX:-0.007522699999999105, dY:-9.05, cY:0.21849510000000016, ccdX:23.311, ccdY:-9.303 },
+      "PIN_12":   { dX:23.3, cX:-0.050242399999998355, dY:-13.05, cY:0.24121320000000068, ccdX:23.345, ccdY:-13.348 },
+      "POW_13.1": { dX:24.9, cX:-0.09501029999999844, dY:-18.45, cY:0.42392889999999994, ccdX:25.026, ccdY:-18.903 },
+      "POW_13.2": { dX:24.9, cX:-0.10065849999999799, dY:-23.45, cY:0.3982367999999994, ccdX:24.976, ccdY:-23.868 },
+      "PIN_14":   { dX:27.3, cX:0.07403150000000025, dY:26.95, cY:0.1788070000000026, ccdX:27.316, ccdY:26.755 },
+      "PIN_15":   { dX:27.3, cX:0.05882569999999987, dY:22.95, cY:0.1823756000000003, ccdX:27.311, ccdY:22.761 },
+      "PIN_16":   { dX:27.3, cX:0.04809889999999939, dY:18.95, cY:0.19812470000000104, ccdX:27.353, ccdY:18.72 },
+      "PIN_17":   { dX:27.3, cX:0.07279169999999979, dY:14.95, cY:0.19262010000000096, ccdX:27.283, ccdY:14.757 },
+      "PIN_18":   { dX:27.3, cX:-0.038411799999998664, dY:10.95, cY:0.1683570000000003, ccdX:27.392, ccdY:10.795 },
+      "PIN_19":   { dX:27.3, cX:0.020043599999997497, dY:6.95, cY:0.19590330000000034, ccdX:27.364, ccdY:6.701 },
+      "PIN_20":   { dX:27.3, cX:-0.002134900000001494, dY:2.95, cY:0.22383750000000013, ccdX:27.376, ccdY:2.662 },
+      "PIN_21":   { dX:27.3, cX:-0.013417699999997978, dY:-1.05, cY:0.21884740000000003, ccdX:27.395, ccdY:-1.326 },
+      "PIN_22":   { dX:27.3, cX:-0.026952599999997773, dY:-5.05, cY:0.23074569999999994, ccdX:27.438, ccdY:-5.34 },
+      "PIN_23":   { dX:27.3, cX:-0.04154020000000003, dY:-9.05, cY:0.2097073999999992, ccdX:27.422, ccdY:-9.302 },
+      "PIN_24":   { dX:27.3, cX:-0.05656809999999979, dY:-13.05, cY:0.22348129999999955, ccdX:27.457, ccdY:-13.327 },
+      "PIN_25":   { dX:32.7, cX:0.10397849999999664, dY:35.75, cY:0.3609390000000019, ccdX:32.497, ccdY:35.369 },
+      "PIN_26":   { dX:33.05, cX:0.10570770000000351, dY:28.95, cY:0.20931320000000042, ccdX:33.047, ccdY:28.746 },
+      "PIN_27":   { dX:33.05, cX:0.09473229999999688, dY:24.95, cY:0.17281879999999816, ccdX:33.051, ccdY:24.809 },
+      "PIN_28":   { dX:33.05, cX:0.0849441000000013, dY:20.95, cY:0.1600873000000007, ccdX:33.119, ccdY:20.801 },
+      "PIN_29":   { dX:33.05, cX:0.07701349999999962, dY:16.95, cY:0.20396279999999933, ccdX:33.17, ccdY:16.735 },
+      "PIN_30":   { dX:33.05, cX:0.14505969999999735, dY:12.95, cY:0.14504420000000096, ccdX:33.036, ccdY:12.815 },
+      "PIN_31":   { dX:33.05, cX:0.08753490000000141, dY:8.95, cY:0.18844569999999905, ccdX:33.088, ccdY:8.768 },
+      "PIN_32":   { dX:33.05, cX:0.03391940000000204, dY:4.95, cY:0.20965729999999994, ccdX:33.159, ccdY:4.713 },
+      "PIN_33":   { dX:33.05, cX:0.02134560000000363, dY:0.95, cY:0.2218682999999999, ccdX:33.108, ccdY:0.681 },
+      "PIN_34":   { dX:33.05, cX:0.008368199999999604, dY:-3.05, cY:0.21779060000000028, ccdX:33.118, ccdY:-3.297 },
+      "PIN_35":   { dX:33.05, cX:-0.006077999999995143, dY:-7.05, cY:0.20454759999999972, ccdX:33.178, ccdY:-7.306 },
+      "PIN_36":   { dX:33.05, cX:-0.027042100000002733, dY:-11.05, cY:0.19945109999999922, ccdX:33.109, ccdY:-11.318 },
+      "PIN_37":   { dX:33.05, cX:-0.03636889999999937, dY:-15.05, cY:0.20796379999999992, ccdX:33.165, ccdY:-15.315 },
+      "PIN_38":   { dX:32.7, cX:-0.09300149999999974, dY:-21.85, cY:0.42026839999999765, ccdX:32.687, ccdY:-22.336 },
+      "E_1":      { dX:-36, cX:0.01057209999999742, dY:-7.35, cY:0.33246209999999987, ccdX:-36.032, ccdY:-7.779 },
+      "E_2":      { dX:-36, cX:-0.029481699999998057, dY:-32.35, cY:0.2948176000000018, ccdX:-35.99, ccdY:-32.774 },
+      "E_4":      { dX:-63.6, cX:0.047154999999996505, dY:-29, cY:0.28965690000000066, ccdX:-63.653, ccdY:-29.303 },
+      "E_5":      { dX:-33.5, cX:0.10682839999999771, dY:28.15, cY:0.3758450999999994, ccdX:-33.619, ccdY:27.846 },
+      "E_6":      { dX:-33.5, cX:0.09200670000000599, dY:23.15, cY:0.35793819999999954, ccdX:-33.639, ccdY:22.854 },
+      "E_7":      { dX:-38.5, cX:0.05664469999999966, dY:23.15, cY:0.22430849999999936, ccdX:-38.491, ccdY:23.001 },
+      "E_8":      { dX:-38.5, cX:0.1114820000000023, dY:28.15, cY:0.32392660000000006, ccdX:-38.514, ccdY:27.908 }
+    },
+    "L2": {
+      "POW_1.1":  { dX:24.9, cX:0.02224350000000186, dY:37.35, cY:0.2866469000000009, ccdX:24.9, ccdY:37.088 },
+      "POW_1.2":  { dX:24.9, cX:0.010252099999998876, dY:32.35, cY:0.2495349999999945, ccdX:24.841, ccdY:32.139 },
+      "PIN_2":    { dX:23.3, cX:0.021295099999999678, dY:26.95, cY:0.20476599999999934, ccdX:23.273, ccdY:26.725 },
+      "PIN_3":    { dX:23.3, cX:0.01725070000000173, dY:22.95, cY:0.231869200000002, ccdX:23.27, ccdY:22.673 },
+      "PIN_4":    { dX:23.3, cX:0.01103599999999716, dY:18.95, cY:0.2523793999999988, ccdX:23.26, ccdY:18.666 },
+      "PIN_5":    { dX:23.3, cX:0.02077109999999749, dY:14.95, cY:0.2922861999999995, ccdX:23.225, ccdY:14.587 },
+      "PIN_6":    { dX:23.3, cX:-0.0066785999999972034, dY:10.95, cY:0.2554300000000005, ccdX:23.281, ccdY:10.613 },
+      "PIN_7":    { dX:23.3, cX:-0.017817999999998335, dY:6.95, cY:0.26718699999999984, ccdX:23.279, ccdY:6.599 },
+      "PIN_8":    { dX:23.3, cX:-0.032059300000000235, dY:2.95, cY:0.27805729999999995, ccdX:23.289, ccdY:2.576 },
+      "PIN_9":    { dX:23.3, cX:-0.012434000000002499, dY:-1.05, cY:0.26622409999999985, ccdX:23.289, ccdY:-1.396 },
+      "PIN_10":   { dX:23.3, cX:-0.023610699999998985, dY:-5.05, cY:0.24360180000000042, ccdX:23.293, ccdY:-5.371 },
+      "PIN_11":   { dX:23.3, cX:-0.029563700000000637, dY:-9.05, cY:0.22319850000000052, ccdX:23.324, ccdY:-9.349 },
+      "PIN_12":   { dX:23.3, cX:-0.07312879999999922, dY:-13.05, cY:0.27474360000000075, ccdX:23.358, ccdY:-13.416 },
+      "POW_13.1": { dX:24.9, cX:-0.11628389999999911, dY:-18.45, cY:0.3962363999999994, ccdX:25.038, ccdY:-18.891 },
+      "POW_13.2": { dX:24.9, cX:-0.1232465999999981, dY:-23.45, cY:0.38283059999999836, ccdX:24.988, ccdY:-23.868 },
+      "PIN_14":   { dX:27.3, cX:0.03499559999999846, dY:26.95, cY:0.22235410000000044, ccdX:27.277, ccdY:26.681 },
+      "PIN_15":   { dX:27.3, cX:0.0204974, dY:22.95, cY:0.21464750000000166, ccdX:27.266, ccdY:22.708 },
+      "PIN_16":   { dX:27.3, cX:0.01282730000000143, dY:18.95, cY:0.23241769999999917, ccdX:27.288, ccdY:18.68 },
+      "PIN_17":   { dX:27.3, cX:0.0385548, dY:14.95, cY:0.1866532000000003, ccdX:27.225, ccdY:14.737 },
+      "PIN_18":   { dX:27.3, cX:-0.06450010000000006, dY:10.95, cY:0.1778051000000005, ccdX:27.338, ccdY:10.754 },
+      "PIN_19":   { dX:27.3, cX:-0.014705600000002761, dY:6.95, cY:0.2215745, ccdX:27.292, ccdY:6.647 },
+      "PIN_20":   { dX:27.3, cX:-0.028866500000003015, dY:2.95, cY:0.22165420000000013, ccdX:27.318, ccdY:2.645 },
+      "PIN_21":   { dX:27.3, cX:-0.03961740000000091, dY:-1.05, cY:0.22315780000000007, ccdX:27.324, ccdY:-1.354 },
+      "PIN_22":   { dX:27.3, cX:-0.05450739999999854, dY:-5.05, cY:0.20399220000000007, ccdX:27.397, ccdY:-5.35 },
+      "PIN_23":   { dX:27.3, cX:-0.06412849999999892, dY:-9.05, cY:0.19640389999999996, ccdX:27.378, ccdY:-9.332 },
+      "PIN_24":   { dX:27.3, cX:-0.07880980000000193, dY:-13.05, cY:0.2634841000000012, ccdX:27.42, ccdY:-13.409 },
+      "PIN_25":   { dX:32.7, cX:0.06219779999999986, dY:35.75, cY:0.3168542999999957, ccdX:32.511, ccdY:35.45 },
+      "PIN_26":   { dX:33.05, cX:0.06622869999999637, dY:28.95, cY:0.19015740000000037, ccdX:33.015, ccdY:28.733 },
+      "PIN_27":   { dX:33.05, cX:0.056198300000005474, dY:24.95, cY:0.18479119999999938, ccdX:33.01, ccdY:24.747 },
+      "PIN_28":   { dX:33.05, cX:0.04721550000000008, dY:20.95, cY:0.18453269999999833, ccdX:33.074, ccdY:20.736 },
+      "PIN_29":   { dX:33.05, cX:0.034737399999997365, dY:16.95, cY:0.2281205999999969, ccdX:33.091, ccdY:16.67 },
+      "PIN_30":   { dX:33.05, cX:0.09887179999999773, dY:12.95, cY:0.17744560000000043, ccdX:32.969, ccdY:12.743 },
+      "PIN_31":   { dX:33.05, cX:0.043234200000000556, dY:8.95, cY:0.20594430000000052, ccdX:32.979, ccdY:8.721 },
+      "PIN_32":   { dX:33.05, cX:-0.000801199999997948, dY:4.95, cY:0.2513860999999995, ccdX:33.091, ccdY:4.634 },
+      "PIN_33":   { dX:33.05, cX:-0.012875200000003417, dY:0.95, cY:0.22702579999999994, ccdX:33.078, ccdY:0.652 },
+      "PIN_34":   { dX:33.05, cX:-0.027134600000003672, dY:-3.05, cY:0.2382428000000001, ccdX:33.07, ccdY:-3.355 },
+      "PIN_35":   { dX:33.05, cX:-0.037018000000003326, dY:-7.05, cY:0.1874336000000003, ccdX:33.09, ccdY:-7.333 },
+      "PIN_36":   { dX:33.05, cX:-0.055254499999996654, dY:-11.05, cY:0.1931396000000003, ccdX:33.062, ccdY:-11.344 },
+      "PIN_37":   { dX:33.05, cX:-0.06795559999999767, dY:-15.05, cY:0.19926519999999925, ccdX:33.104, ccdY:-15.338 },
+      "PIN_38":   { dX:32.7, cX:-0.1152546000000001, dY:-21.85, cY:0.4353283999999995, ccdX:32.703, ccdY:-22.39 },
+      "E_1":      { dX:-36, cX:-0.024503799999997966, dY:-7.35, cY:0.24583530000000042, ccdX:-36, ccdY:-7.657 },
+      "E_2":      { dX:-36, cX:-0.04782390000000447, dY:-32.35, cY:0.29150169999999775, ccdX:-35.916, ccdY:-32.788 },
+      "E_4":      { dX:-63.6, cX:0.008575499999999181, dY:-29, cY:0.2696418999999999, ccdX:-63.668, ccdY:-29.303 },
+      "E_5":      { dX:-33.5, cX:0.04365479999999877, dY:28.15, cY:0.354307900000002, ccdX:-33.551, ccdY:27.918 },
+      "E_6":      { dX:-33.5, cX:0.03497989999999618, dY:23.15, cY:0.3705715999999981, ccdX:-33.577, ccdY:22.893 },
+      "E_7":      { dX:-38.5, cX:0.08539069999999782, dY:23.15, cY:0.26282420000000073, ccdX:-38.469, ccdY:23.023 },
+      "E_8":      { dX:-38.5, cX:0.05436180000000235, dY:28.15, cY:0.3163890000000009, ccdX:-38.418, ccdY:27.976 }
+    },
+    "X1": {
+      "POW_1.1":  { dX:24.9, cX:0.08040460000000138, dY:37.35, cY:0.3020235999999983, ccdX:24.804, ccdY:37.124 },
+      "POW_1.2":  { dX:24.9, cX:0.05556130000000081, dY:32.35, cY:0.2511247999999995, ccdX:24.784, ccdY:32.186 },
+      "PIN_2":    { dX:23.3, cX:0.05943120000000235, dY:26.95, cY:0.19941490000000073, ccdX:23.223, ccdY:26.778 },
+      "PIN_3":    { dX:23.3, cX:0.05130180000000095, dY:22.95, cY:0.20590569999999886, ccdX:23.207, ccdY:22.751 },
+      "PIN_4":    { dX:23.3, cX:0.043422499999998365, dY:18.95, cY:0.22756309999999758, ccdX:23.204, ccdY:18.754 },
+      "PIN_5":    { dX:23.3, cX:0.05067100000000124, dY:14.95, cY:0.2843872000000012, ccdX:23.185, ccdY:14.684 },
+      "PIN_6":    { dX:23.3, cX:0.020338100000000026, dY:10.95, cY:0.25166549999999965, ccdX:23.27, ccdY:10.69 },
+      "PIN_7":    { dX:23.3, cX:0.004700899999999564, dY:6.95, cY:0.25207020000000036, ccdX:23.268, ccdY:6.697 },
+      "PIN_8":    { dX:23.3, cX:-0.008604400000002954, dY:2.95, cY:0.25487860000000007, ccdX:23.295, ccdY:2.695 },
+      "PIN_9":    { dX:23.3, cX:0.011544399999998234, dY:-1.05, cY:0.2417480999999999, ccdX:23.25, ccdY:-1.305 },
+      "PIN_10":   { dX:23.3, cX:-0.004021200000000391, dY:-5.05, cY:0.22964889999999993, ccdX:23.306, ccdY:-5.276 },
+      "PIN_11":   { dX:23.3, cX:-0.013411699999998916, dY:-9.05, cY:0.21909249999999858, ccdX:23.297, ccdY:-9.264 },
+      "PIN_12":   { dX:23.3, cX:-0.06366470000000035, dY:-13.05, cY:0.2607638999999988, ccdX:23.344, ccdY:-13.325 },
+      "POW_13.1": { dX:24.9, cX:-0.10517189999999843, dY:-18.45, cY:0.39980059999999895, ccdX:25.061, ccdY:-18.822 },
+      "POW_13.2": { dX:24.9, cX:-0.12373679999999965, dY:-23.45, cY:0.3734648999999983, ccdX:24.991, ccdY:-23.787 },
+      "PIN_14":   { dX:27.3, cX:0.07054640000000134, dY:26.95, cY:0.22213879999999975, ccdX:27.281, ccdY:26.756 },
+      "PIN_15":   { dX:27.3, cX:0.06270590000000098, dY:22.95, cY:0.21295780000000164, ccdX:27.235, ccdY:22.752 },
+      "PIN_16":   { dX:27.3, cX:0.04200529999999958, dY:18.95, cY:0.20950819999999837, ccdX:27.299, ccdY:18.742 },
+      "PIN_17":   { dX:27.3, cX:0.066401299999999, dY:14.95, cY:0.21054900000000032, ccdX:27.224, ccdY:14.759 },
+      "PIN_18":   { dX:27.3, cX:-0.04267109999999974, dY:10.95, cY:0.19759729999999998, ccdX:27.343, ccdY:10.797 },
+      "PIN_19":   { dX:27.3, cX:0.006247799999997028, dY:6.95, cY:0.23898679999999928, ccdX:27.321, ccdY:6.682 },
+      "PIN_20":   { dX:27.3, cX:-0.008472900000001005, dY:2.95, cY:0.2440237999999999, ccdX:27.326, ccdY:2.689 },
+      "PIN_21":   { dX:27.3, cX:-0.02582519999999988, dY:-1.05, cY:0.22943579999999986, ccdX:27.349, ccdY:-1.313 },
+      "PIN_22":   { dX:27.3, cX:-0.03168850000000134, dY:-5.05, cY:0.20789650000000037, ccdX:27.401, ccdY:-5.266 },
+      "PIN_23":   { dX:27.3, cX:-0.052262699999999995, dY:-9.05, cY:0.19289989999999868, ccdX:27.386, ccdY:-9.235 },
+      "PIN_24":   { dX:27.3, cX:-0.06882650000000012, dY:-13.05, cY:0.22555180000000163, ccdX:27.454, ccdY:-13.287 },
+      "PIN_25":   { dX:32.7, cX:0.10653020000000168, dY:35.75, cY:0.3595423000000011, ccdX:32.405, ccdY:35.437 },
+      "PIN_26":   { dX:33.05, cX:0.10008189999999928, dY:28.95, cY:0.22144220000000203, ccdX:32.991, ccdY:28.711 },
+      "PIN_27":   { dX:33.05, cX:0.09216490000000022, dY:24.95, cY:0.1885741000000003, ccdX:32.93, ccdY:24.756 },
+      "PIN_28":   { dX:33.05, cX:0.08379029999999688, dY:20.95, cY:0.20182909999999765, ccdX:32.856, ccdY:20.731 },
+      "PIN_29":   { dX:33.05, cX:0.0618150999999969, dY:16.95, cY:0.2176587000000012, ccdX:32.96, ccdY:16.694 },
+      "PIN_30":   { dX:33.05, cX:0.12739340000000254, dY:12.95, cY:0.1663963000000006, ccdX:32.891, ccdY:12.763 },
+      "PIN_31":   { dX:33.05, cX:0.06278180000000333, dY:8.95, cY:0.22495390000000093, ccdX:33.034, ccdY:8.693 },
+      "PIN_32":   { dX:33.05, cX:0.025495099999993442, dY:4.95, cY:0.2240599000000003, ccdX:33.023, ccdY:4.667 },
+      "PIN_33":   { dX:33.05, cX:0.010656799999999578, dY:0.95, cY:0.22411789999999998, ccdX:33.095, ccdY:0.751 },
+      "PIN_34":   { dX:33.05, cX:-0.010338799999999537, dY:-3.05, cY:0.21983059999999988, ccdX:33.116, ccdY:-3.326 },
+      "PIN_35":   { dX:33.05, cX:-0.021699600000005148, dY:-7.05, cY:0.20971019999999996, ccdX:33.142, ccdY:-7.28 },
+      "PIN_36":   { dX:33.05, cX:-0.0370632999999998, dY:-11.05, cY:0.1925737999999999, ccdX:33.15, ccdY:-11.272 },
+      "PIN_37":   { dX:33.05, cX:-0.05073539999999355, dY:-15.05, cY:0.21871980000000057, ccdX:33.169, ccdY:-15.289 },
+      "PIN_38":   { dX:32.7, cX:-0.11757149999999683, dY:-21.85, cY:0.41168869999999913, ccdX:32.662, ccdY:-22.227 },
+      "E_1":      { dX:-36, cX:-0.007068400000001418, dY:-7.35, cY:0.2598769000000001, ccdX:-36.049, ccdY:-7.648 },
+      "E_2":      { dX:-36, cX:-0.039257700000000284, dY:-32.35, cY:0.24508459999999843, ccdX:-35.98, ccdY:-32.727 },
+      "E_4":      { dX:-63.6, cX:0.021094300000001454, dY:-29, cY:0.22143900000000016, ccdX:-63.738, ccdY:-29.182 },
+      "E_5":      { dX:-33.5, cX:0.09501730000000208, dY:28.15, cY:0.35133710000000207, ccdX:-33.621, ccdY:27.883 },
+      "E_6":      { dX:-33.5, cX:0.07775000000000176, dY:23.15, cY:0.36679050000000046, ccdX:-33.64, ccdY:22.86 },
+      "E_7":      { dX:-38.5, cX:0.05025579999999508, dY:23.15, cY:0.22815539999999856, ccdX:-38.65, ccdY:23.023 },
+      "E_8":      { dX:-38.5, cX:0.09598330000000033, dY:28.15, cY:0.3156725999999992, ccdX:-38.674, ccdY:27.944 }
+    },
+    "X2": {
+      "POW_1.1":  { dX:24.9, cX:0.041221000000000174, dY:37.35, cY:0.28754849999999976, ccdX:24.834, ccdY:37.113 },
+      "POW_1.2":  { dX:24.9, cX:0.03689470000000128, dY:32.35, cY:0.24890770000000373, ccdX:24.781, ccdY:32.165 },
+      "PIN_2":    { dX:23.3, cX:0.041684899999999914, dY:26.95, cY:0.20152870000000078, ccdX:23.248, ccdY:26.733 },
+      "PIN_3":    { dX:23.3, cX:0.036387999999998755, dY:22.95, cY:0.21643549999999934, ccdX:23.257, ccdY:22.734 },
+      "PIN_4":    { dX:23.3, cX:0.03066570000000013, dY:18.95, cY:0.2456657, ccdX:23.228, ccdY:18.708 },
+      "PIN_5":    { dX:23.3, cX:0.035697599999998886, dY:14.95, cY:0.29000249999999994, ccdX:23.192, ccdY:14.63 },
+      "PIN_6":    { dX:23.3, cX:0.0031679000000011115, dY:10.95, cY:0.25150320000000015, ccdX:23.273, ccdY:10.665 },
+      "PIN_7":    { dX:23.3, cX:-0.008299300000000898, dY:6.95, cY:0.26882370000000044, ccdX:23.292, ccdY:6.653 },
+      "PIN_8":    { dX:23.3, cX:-0.02376989999999779, dY:2.95, cY:0.2539482000000004, ccdX:23.298, ccdY:2.659 },
+      "PIN_9":    { dX:23.3, cX:-0.0000630000000008124, dY:-1.05, cY:0.24137209999999998, ccdX:23.25, ccdY:-1.327 },
+      "PIN_10":   { dX:23.3, cX:-0.022958600000002605, dY:-5.05, cY:0.22313340000000004, ccdX:23.295, ccdY:-5.303 },
+      "PIN_11":   { dX:23.3, cX:-0.031486300000000966, dY:-9.05, cY:0.2286753000000008, ccdX:23.279, ccdY:-9.319 },
+      "PIN_12":   { dX:23.3, cX:-0.07540339999999901, dY:-13.05, cY:0.26000140000000016, ccdX:23.38, ccdY:-13.345 },
+      "POW_13.1": { dX:24.9, cX:-0.1238942999999999, dY:-18.45, cY:0.3975393000000018, ccdX:25.04, ccdY:-18.861 },
+      "POW_13.2": { dX:24.9, cX:-0.1299599000000029, dY:-23.45, cY:0.3830279999999995, ccdX:24.978, ccdY:-23.84 },
+      "PIN_14":   { dX:27.3, cX:0.052087199999999, dY:26.95, cY:0.21484490000000278, ccdX:27.311, ccdY:26.708 },
+      "PIN_15":   { dX:27.3, cX:0.043864399999996806, dY:22.95, cY:0.20717939999999757, ccdX:27.26, ccdY:22.736 },
+      "PIN_16":   { dX:27.3, cX:0.030201500000000436, dY:18.95, cY:0.2387087000000001, ccdX:27.287, ccdY:18.693 },
+      "PIN_17":   { dX:27.3, cX:0.04902359999999817, dY:14.95, cY:0.20278030000000058, ccdX:27.234, ccdY:14.747 },
+      "PIN_18":   { dX:27.3, cX:-0.0531624000000015, dY:10.95, cY:0.19951000000000008, ccdX:27.346, ccdY:10.769 },
+      "PIN_19":   { dX:27.3, cX:-0.0036678000000023303, dY:6.95, cY:0.23362699999999936, ccdX:27.335, ccdY:6.666 },
+      "PIN_20":   { dX:27.3, cX:-0.02402980000000099, dY:2.95, cY:0.23837870000000017, ccdX:27.327, ccdY:2.667 },
+      "PIN_21":   { dX:27.3, cX:-0.0407396999999996, dY:-1.05, cY:0.23087880000000016, ccdX:27.37, ccdY:-1.324 },
+      "PIN_22":   { dX:27.3, cX:-0.051708200000000204, dY:-5.05, cY:0.22278429999999982, ccdX:27.381, ccdY:-5.318 },
+      "PIN_23":   { dX:27.3, cX:-0.06410629999999884, dY:-9.05, cY:0.19959859999999985, ccdX:27.38, ccdY:-9.284 },
+      "PIN_24":   { dX:27.3, cX:-0.07857600000000176, dY:-13.05, cY:0.20188199999999945, ccdX:27.388, ccdY:-13.29 },
+      "PIN_25":   { dX:32.7, cX:0.0904275000000041, dY:35.75, cY:0.3266619999999989, ccdX:32.416, ccdY:35.451 },
+      "PIN_26":   { dX:33.05, cX:0.0857055000000031, dY:28.95, cY:0.23305440000000033, ccdX:33.001, ccdY:28.657 },
+      "PIN_27":   { dX:33.05, cX:0.07590140000000645, dY:24.95, cY:0.19619810000000015, ccdX:32.974, ccdY:24.703 },
+      "PIN_28":   { dX:33.05, cX:0.06417989999999918, dY:20.95, cY:0.2098875999999983, ccdX:32.879, ccdY:20.701 },
+      "PIN_29":   { dX:33.05, cX:0.0499723000000003, dY:16.95, cY:0.20982330000000005, ccdX:33.034, ccdY:16.688 },
+      "PIN_30":   { dX:33.05, cX:0.11371830000000216, dY:12.95, cY:0.20631859999999946, ccdX:32.925, ccdY:12.676 },
+      "PIN_31":   { dX:33.05, cX:0.05524989999999974, dY:8.95, cY:0.2280042999999985, ccdX:33.053, ccdY:8.675 },
+      "PIN_32":   { dX:33.05, cX:0.007852700000000823, dY:4.95, cY:0.22699300000000022, ccdX:33.06, ccdY:4.668 },
+      "PIN_33":   { dX:33.05, cX:-0.005297800000001018, dY:0.95, cY:0.2301318, ccdX:33.087, ccdY:0.718 },
+      "PIN_34":   { dX:33.05, cX:-0.016175500000002785, dY:-3.05, cY:0.23448560000000018, ccdX:33.124, ccdY:-3.363 },
+      "PIN_35":   { dX:33.05, cX:-0.02813199999999938, dY:-7.05, cY:0.21642389999999967, ccdX:33.127, ccdY:-7.343 },
+      "PIN_36":   { dX:33.05, cX:-0.04419469999999848, dY:-11.05, cY:0.2160373, ccdX:33.14, ccdY:-11.347 },
+      "PIN_37":   { dX:33.05, cX:-0.059788300000001016, dY:-15.05, cY:0.22467719999999858, ccdX:33.155, ccdY:-15.338 },
+      "PIN_38":   { dX:32.7, cX:-0.11968980000000329, dY:-21.85, cY:0.40594580000000136, ccdX:32.643, ccdY:-22.251 },
+      "E_1":      { dX:-36, cX:-0.015315600000000984, dY:-7.35, cY:0.2603909, ccdX:-36.106, ccdY:-7.656 },
+      "E_2":      { dX:-36, cX:-0.047368299999995145, dY:-32.35, cY:0.2508082000000016, ccdX:-36.081, ccdY:-32.71 },
+      "E_4":      { dX:-63.6, cX:0.009277099999998484, dY:-29, cY:0.20200519999999855, ccdX:-63.733, ccdY:-29.173 },
+      "E_5":      { dX:-33.5, cX:0.08650779999999969, dY:28.15, cY:0.36288860000000156, ccdX:-33.566, ccdY:27.851 },
+      "E_6":      { dX:-33.5, cX:0.054321200000003955, dY:23.15, cY:0.35296590000000094, ccdX:-33.579, ccdY:22.854 },
+      "E_7":      { dX:-38.5, cX:0.02818480000000534, dY:23.15, cY:0.22849640000000093, ccdX:-38.566, ccdY:23.016 },
+      "E_8":      { dX:-38.5, cX:0.08530939999999987, dY:28.15, cY:0.33334040000000087, ccdX:-38.6, ccdY:27.918 }
+    }
+  };
+
+  // ----------------------------------------------------------------
+  // 2. STATE
+  // ----------------------------------------------------------------
+  const CAVITIES = ['L1', 'L2', 'X1', 'X2'];
+  const PIN_NAMES = Object.keys(ALL_DATA[CAVITIES[0]]);
+
+  const state = {
+    cavity: 'L1',
+    pin: PIN_NAMES[0],
+    data: {} // per cavity/pin: { ccdX, ccdY, tempX, tempY } (we'll store current values)
+  };
+
+  // initialize state.data with pre-filled values
+  for (const cavity of CAVITIES) {
+    for (const pin of PIN_NAMES) {
+      const key = cavity + '|' + pin;
+      const info = ALL_DATA[cavity][pin];
+      state.data[key] = {
+        ccdX: info.ccdX,
+        ccdY: info.ccdY,
+        tempX: 0,
+        tempY: 0
+      };
+    }
+  }
+
+  function getState(cavity, pin) {
+    const key = cavity + '|' + pin;
+    return state.data[key];
+  }
+
+  function setCcd(cavity, pin, ccdX, ccdY) {
+    const key = cavity + '|' + pin;
+    state.data[key].ccdX = parseFloat(ccdX) || 0;
+    state.data[key].ccdY = parseFloat(ccdY) || 0;
+  }
+
+  function setTemp(cavity, pin, tempX, tempY) {
+    const key = cavity + '|' + pin;
+    state.data[key].tempX = parseFloat(tempX) || 0;
+    state.data[key].tempY = parseFloat(tempY) || 0;
+  }
+
+  // ----------------------------------------------------------------
+  // 3. DOM refs
+  // ----------------------------------------------------------------
+  const cavitySelect = document.getElementById('cavitySelect');
+  const pinSelect = document.getElementById('pinSelect');
+  const ccdXInput = document.getElementById('ccdXInput');
+  const ccdYInput = document.getElementById('ccdYInput');
+  const tempXInput = document.getElementById('tempXInput');
+  const tempYInput = document.getElementById('tempYInput');
+  const resetTempBtn = document.getElementById('resetTempBtn');
+  const clearCcdBtn = document.getElementById('clearCcdBtn');
+  const targetLengthInput = document.getElementById('targetLengthInput');
+  const computeTargetBtn = document.getElementById('computeTargetBtn');
+  const reqTempX = document.getElementById('reqTempX');
+  const reqTempY = document.getElementById('reqTempY');
+  const achievedLength = document.getElementById('achievedLength');
+  const fileInput = document.getElementById('fileInput');
+  const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+
+  const xOffsetVal = document.getElementById('xOffsetVal');
+  const yOffsetVal = document.getElementById('yOffsetVal');
+  const lengthVal = document.getElementById('lengthVal');
+  const statusBadge = document.getElementById('statusBadge');
+  const selectedPinTitle = document.getElementById('selectedPinTitle');
+
+  const dispCcdX = document.getElementById('dispCcdX');
+  const dispCcdY = document.getElementById('dispCcdY');
+  const dispDrawX = document.getElementById('dispDrawX');
+  const dispDrawY = document.getElementById('dispDrawY');
+  const dispCompX = document.getElementById('dispCompX');
+  const dispCompY = document.getElementById('dispCompY');
+  const dispTempX = document.getElementById('dispTempX');
+  const dispTempY = document.getElementById('dispTempY');
+
+  const summaryTableBody = document.getElementById('summaryTableBody');
+
+  // ----------------------------------------------------------------
+  // 4. Core functions
+  // ----------------------------------------------------------------
+  function computeOffsets(pin, ccdX, ccdY, tempX, tempY, cavity) {
+    const info = ALL_DATA[cavity][pin];
+    if (!info) return null;
+    const xOff = ccdX + info.cX + tempX - info.dX;
+    const yOff = ccdY + info.cY + tempY - info.dY;
+    const length = 2 * Math.sqrt(xOff*xOff + yOff*yOff);
+    return { xOff, yOff, length };
+  }
+
+  function computeRequiredTemp(pin, ccdX, ccdY, targetLength, cavity) {
+    const info = ALL_DATA[cavity][pin];
+    if (!info) return null;
+    const baseX = ccdX + info.cX - info.dX;
+    const baseY = ccdY + info.cY - info.dY;
+    const currentLen = 2 * Math.sqrt(baseX*baseX + baseY*baseY);
+    if (currentLen <= targetLength) {
+      return { tempX: 0, tempY: 0, achievedLen: currentLen };
+    }
+    const scale = targetLength / currentLen;
+    const newX = baseX * scale;
+    const newY = baseY * scale;
+    const reqX = newX - baseX;
+    const reqY = newY - baseY;
+    const achievedLen = 2 * Math.sqrt(newX*newX + newY*newY);
+    return { tempX: reqX, tempY: reqY, achievedLen };
+  }
+
+  // ----------------------------------------------------------------
+  // 5. Rendering
+  // ----------------------------------------------------------------
+  function renderAll() {
+    const cavity = state.cavity;
+    const pin = state.pin;
+    const info = ALL_DATA[cavity][pin];
+    if (!info) return;
+
+    const st = getState(cavity, pin);
+    const ccdX = st.ccdX;
+    const ccdY = st.ccdY;
+    const tempX = st.tempX;
+    const tempY = st.tempY;
+    const limit = parseFloat(targetLengthInput.value) || 0.5;
+
+    // Update input fields to reflect current state
+    ccdXInput.value = ccdX;
+    ccdYInput.value = ccdY;
+    tempXInput.value = tempX;
+    tempYInput.value = tempY;
+
+    const result = computeOffsets(pin, ccdX, ccdY, tempX, tempY, cavity);
+    if (!result) return;
+    const { xOff, yOff, length } = result;
+    const pass = length <= limit;
+
+    selectedPinTitle.textContent = `${pin} · ${cavity}`;
+    statusBadge.textContent = pass ? '✅ PASS' : `❌ FAIL ( > ${limit.toFixed(1)} )`;
+    statusBadge.className = 'badge ' + (pass ? 'pass' : 'fail');
+
+    xOffsetVal.textContent = xOff.toFixed(6);
+    yOffsetVal.textContent = yOff.toFixed(6);
+    lengthVal.textContent = length.toFixed(6);
+
+    dispCcdX.textContent = ccdX.toFixed(4);
+    dispCcdY.textContent = ccdY.toFixed(4);
+    dispDrawX.textContent = info.dX.toFixed(4);
+    dispDrawY.textContent = info.dY.toFixed(4);
+    dispCompX.textContent = info.cX.toFixed(4);
+    dispCompY.textContent = info.cY.toFixed(4);
+    dispTempX.textContent = tempX.toFixed(4);
+    dispTempY.textContent = tempY.toFixed(4);
+
+    const req = computeRequiredTemp(pin, ccdX, ccdY, limit, cavity);
+    if (req) {
+      reqTempX.textContent = req.tempX.toFixed(6);
+      reqTempY.textContent = req.tempY.toFixed(6);
+      achievedLength.textContent = req.achievedLen.toFixed(6);
+    } else {
+      reqTempX.textContent = '—';
+      reqTempY.textContent = '—';
+      achievedLength.textContent = '—';
+    }
+
+    renderSummary(cavity, limit);
+  }
+
+  function renderSummary(cavity, limit) {
+    let html = '';
+    for (const pin of PIN_NAMES) {
+      const info = ALL_DATA[cavity][pin];
+      const st = getState(cavity, pin);
+      const result = computeOffsets(pin, st.ccdX, st.ccdY, st.tempX, st.tempY, cavity);
+      if (!result) continue;
+      const { xOff, yOff, length } = result;
+      const pass = length <= limit;
+      const dotClass = pass ? 'pass' : 'fail';
+      html += `<tr>
+        <td class="pin-name">${pin}</td>
+        <td>${st.ccdX.toFixed(4)}</td>
+        <td>${st.ccdY.toFixed(4)}</td>
+        <td>${xOff.toFixed(4)}</td>
+        <td>${yOff.toFixed(4)}</td>
+        <td>${length.toFixed(4)}</td>
+        <td><span class="status-dot ${dotClass}"></span>${pass ? 'PASS' : 'FAIL'}</td>
+      </tr>`;
+    }
+    summaryTableBody.innerHTML = html;
+  }
+
+  // ----------------------------------------------------------------
+  // 6. UI Events
+  // ----------------------------------------------------------------
+  function populatePins() {
+    pinSelect.innerHTML = '';
+    for (const p of PIN_NAMES) {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      pinSelect.appendChild(opt);
+    }
+    pinSelect.value = state.pin;
+  }
+
+  function populateCavities() {
+    cavitySelect.innerHTML = '';
+    for (const c of CAVITIES) {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      cavitySelect.appendChild(opt);
+    }
+    cavitySelect.value = state.cavity;
+  }
+
+  function loadPinData() {
+    const cavity = state.cavity;
+    const pin = state.pin;
+    const info = ALL_DATA[cavity][pin];
+    if (!info) return;
+    const st = getState(cavity, pin);
+    ccdXInput.value = st.ccdX;
+    ccdYInput.value = st.ccdY;
+    tempXInput.value = st.tempX;
+    tempYInput.value = st.tempY;
+    selectedPinTitle.textContent = `${pin} · ${cavity}`;
+    renderAll();
+  }
+
+  cavitySelect.addEventListener('change', () => {
+    state.cavity = cavitySelect.value;
+    state.pin = PIN_NAMES[0];
+    pinSelect.value = state.pin;
+    loadPinData();
+  });
+
+  pinSelect.addEventListener('change', () => {
+    state.pin = pinSelect.value;
+    loadPinData();
+  });
+
+  // Input changes – update state and re-render
+  ccdXInput.addEventListener('input', () => {
+    const val = parseFloat(ccdXInput.value) || 0;
+    setCcd(state.cavity, state.pin, val, parseFloat(ccdYInput.value) || 0);
+    renderAll();
+  });
+  ccdYInput.addEventListener('input', () => {
+    const val = parseFloat(ccdYInput.value) || 0;
+    setCcd(state.cavity, state.pin, parseFloat(ccdXInput.value) || 0, val);
+    renderAll();
+  });
+  tempXInput.addEventListener('input', () => {
+    const val = parseFloat(tempXInput.value) || 0;
+    setTemp(state.cavity, state.pin, val, parseFloat(tempYInput.value) || 0);
+    renderAll();
+  });
+  tempYInput.addEventListener('input', () => {
+    const val = parseFloat(tempYInput.value) || 0;
+    setTemp(state.cavity, state.pin, parseFloat(tempXInput.value) || 0, val);
+    renderAll();
+  });
+  targetLengthInput.addEventListener('input', renderAll);
+
+  // Buttons
+  resetTempBtn.addEventListener('click', () => {
+    setTemp(state.cavity, state.pin, 0, 0);
+    renderAll();
+  });
+
+  clearCcdBtn.addEventListener('click', () => {
+    setCcd(state.cavity, state.pin, 0, 0);
+    renderAll();
+  });
+
+  computeTargetBtn.addEventListener('click', renderAll);
+
+  // ----------------------------------------------------------------
+  // 7. CSV Download (Full Data)
+  // ----------------------------------------------------------------
+  function downloadCsv() {
+    const limit = parseFloat(targetLengthInput.value) || 0.5;
+    let csvContent = "Cavity,Pin,DrawingX,CompX,CCDX,TempX,DrawingY,CompY,CCDY,TempY,X_Offset,Y_Offset,Offset_Length,Status\n";
+    let count = 0;
+
+    for (const cavity of CAVITIES) {
+      for (const pin of PIN_NAMES) {
+        const info = ALL_DATA[cavity][pin];
+        const st = getState(cavity, pin);
+        const result = computeOffsets(pin, st.ccdX, st.ccdY, st.tempX, st.tempY, cavity);
+        if (!result) continue;
+        const { xOff, yOff, length } = result;
+        const status = length <= limit ? 'PASS' : 'FAIL';
+        csvContent += `${cavity},${pin},${info.dX.toFixed(6)},${info.cX.toFixed(6)},${st.ccdX.toFixed(6)},${st.tempX.toFixed(6)},${info.dY.toFixed(6)},${info.cY.toFixed(6)},${st.ccdY.toFixed(6)},${st.tempY.toFixed(6)},${xOff.toFixed(6)},${yOff.toFixed(6)},${length.toFixed(6)},${status}\n`;
+        count++;
+      }
+    }
+
+    if (count === 0) {
+      alert('No data to export.');
+      return;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'pcb_tp_verified_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  downloadCsvBtn.addEventListener('click', downloadCsv);
+
+  // ----------------------------------------------------------------
+  // 8. File Upload (CCD only) – kept for convenience
+  // ----------------------------------------------------------------
+  function handleFileUpload(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      if (lines.length < 2) {
+        alert('File appears empty or missing header.');
+        return;
+      }
+      const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const cavityIdx = header.indexOf('cavity');
+      const pinIdx = header.indexOf('pin');
+      const ccdxIdx = header.indexOf('ccdx');
+      const ccdyIdx = header.indexOf('ccdy');
+      if (cavityIdx === -1 || pinIdx === -1 || ccdxIdx === -1 || ccdyIdx === -1) {
+        alert('CSV must have columns: Cavity, Pin, CCDX, CCDY (case-insensitive).');
+        return;
+      }
+      let count = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim());
+        if (cols.length <= Math.max(cavityIdx, pinIdx, ccdxIdx, ccdyIdx)) continue;
+        const cavity = cols[cavityIdx];
+        const pin = cols[pinIdx];
+        const ccdX = parseFloat(cols[ccdxIdx]);
+        const ccdY = parseFloat(cols[ccdyIdx]);
+        if (!isNaN(ccdX) && !isNaN(ccdY) && CAVITIES.includes(cavity) && PIN_NAMES.includes(pin)) {
+          setCcd(cavity, pin, ccdX, ccdY);
+          count++;
+        }
+      }
+      alert(`Imported ${count} readings.`);
+      const st = getState(state.cavity, state.pin);
+      ccdXInput.value = st.ccdX;
+      ccdYInput.value = st.ccdY;
+      renderAll();
+    };
+    reader.readAsText(file);
+  }
+
+  fileInput.addEventListener('change', function(e) {
+    if (this.files && this.files.length > 0) {
+      handleFileUpload(this.files[0]);
+    }
+    this.value = '';
+  });
+
+  // ----------------------------------------------------------------
+  // 9. Initialization
+  // ----------------------------------------------------------------
+  populateCavities();
+  populatePins();
+  state.cavity = 'L1';
+  state.pin = PIN_NAMES[0];
+  cavitySelect.value = 'L1';
+  pinSelect.value = PIN_NAMES[0];
+  loadPinData();
+</script>
+</body>
+</html>
